@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 public class AggregateDto {
+
     private String productUuid;
     private Long reviewCount;
     private Double avgStar;

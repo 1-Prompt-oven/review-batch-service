@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "review")
 @Getter
 @NoArgsConstructor
-public class ReviewEntity  {
+public class ReviewEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -33,6 +33,7 @@ public class taskletBatchService {
 
     @Bean
     public Job job() {
+
         return new JobBuilder("aggregateJob", jobRepository)
                 .start(aggregateStep())
                 .build();
@@ -40,6 +41,7 @@ public class taskletBatchService {
 
     @Bean
     public Step aggregateStep() {
+
         return new StepBuilder("aggregateStep", jobRepository)
                 .tasklet(aggregateTasklet(), transactionManager)
                 .build();
@@ -47,6 +49,7 @@ public class taskletBatchService {
 
     @Bean
     public Tasklet aggregateTasklet() {
+
         return (contribution, chunkContext) -> {
 
             List<AggregateDto> aggregateDtoList = reviewRepository.aggregateReviewData();
@@ -76,8 +79,6 @@ public class taskletBatchService {
                 }
                 toSaveData.add(existingEntity);
             }
-
-            log.info("toSaveData: {}", toSaveData);
 
             aggregateRepository.saveAll(toSaveData);
 
