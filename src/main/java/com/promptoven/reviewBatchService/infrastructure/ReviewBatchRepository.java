@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 
 public interface ReviewBatchRepository extends JpaRepository<ReviewBatchEntity, Long> {
 
-    @Query("SELECT new com.promptoven.reviewBatchService.dto.AggregateDto(r.productUuid, " +
+    @Query("SELECT new com.promptoven.reviewBatchService.dto.out.AggregateDto(r.productUuid, " +
             "CAST(COUNT(r) AS long), " +
             "CAST(AVG(r.star) AS double)) " +
             "FROM ReviewBatchEntity r " +
