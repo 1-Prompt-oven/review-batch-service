@@ -1,5 +1,6 @@
 package com.promptoven.reviewBatchService.presentation;
 
+import com.promptoven.reviewBatchService.application.BatchSchedule;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
@@ -14,17 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class BatchController {
 
-    private final JobLauncher jobLauncher;
-    private final JobRegistry jobRegistry;
+    private final BatchSchedule batchSchedule;
 
     @GetMapping
     public String batch() throws Exception {
-        JobParameters jobParameters = new JobParametersBuilder()
-                .addLong("timestamp", System.currentTimeMillis()) // 매번 다른 파라미터 추가
-                .toJobParameters();
-
-        jobLauncher.run(jobRegistry.getJob("aggregateJob"), jobParameters);
-
+        batchSchedule.scheduleBatch();
         return "OK";
     }
 }

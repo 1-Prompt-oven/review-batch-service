@@ -1,4 +1,4 @@
-package com.promptoven.reviewBatchService.dto;
+package com.promptoven.reviewBatchService.dto.out;
 
 import com.promptoven.reviewBatchService.domain.AggregateEntity;
 import lombok.Builder;
