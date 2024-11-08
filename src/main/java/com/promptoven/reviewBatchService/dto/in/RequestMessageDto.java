@@ -14,17 +14,20 @@ public class RequestMessageDto {
 
     private String productUuid;
     private int star;
+    private int previousStar;
 
     @Builder
-    public RequestMessageDto(String productUuid, int star) {
+    public RequestMessageDto(String productUuid, int star, int previousStar) {
         this.productUuid = productUuid;
         this.star = star;
+        this.previousStar = previousStar;
     }
 
     public ReviewBatchEntity toEntity(EventType type) {
         return ReviewBatchEntity.builder()
                 .productUuid(productUuid)
                 .star(star)
+                .previousStar(previousStar)
                 .type(type)
                 .build();
     }

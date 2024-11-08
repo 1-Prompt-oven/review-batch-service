@@ -28,15 +28,19 @@ public class ReviewBatchEntity {
     @Column(nullable = false)
     private int star;
 
+    @Column(nullable = true)
+    private int previousStar;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private EventType type;
 
     @Builder
-    public ReviewBatchEntity(Long batchId, String productUuid, int star, EventType type) {
+    public ReviewBatchEntity(Long batchId, String productUuid, int star, int previousStar, EventType type) {
         this.batchId = batchId;
         this.productUuid = productUuid;
         this.star = star;
+        this.previousStar = previousStar;
         this.type = type;
     }
 }

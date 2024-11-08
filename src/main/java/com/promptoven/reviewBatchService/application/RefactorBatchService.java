@@ -90,6 +90,12 @@ public class RefactorBatchService {
                         }
                     }
 
+                    else if (eventType == EventType.UPDATE) {
+                        if (existingEntity != null) {
+                            return updateEntity(existingEntity, aggregateDto, EventType.UPDATE);
+                        }
+                    }
+
                     else if (eventType == EventType.DELETE) {
                         if (existingEntity != null && existingEntity.getReviewCount() > aggregateDto.getReviewCount()) {
                             return updateEntity(existingEntity, aggregateDto, EventType.DELETE);
@@ -131,6 +137,13 @@ public class RefactorBatchService {
                 updatedReviewCount = existingEntity.getReviewCount() + aggregateDto.getReviewCount();
                 updatedAvgStar = (existingEntity.getAvgStar() * existingEntity.getReviewCount()
                         + aggregateDto.getAvgStar() * aggregateDto.getReviewCount()) / updatedReviewCount;
+                break;
+
+            case UPDATE:
+                updatedReviewCount = existingEntity.getReviewCount();
+                double totalStars = existingEntity.getAvgStar() * existingEntity.getReviewCount();
+                totalStars = totalStars - aggregateDto.getPreviousTotalStar() + aggregateDto.getNewTotalStar();
+                updatedAvgStar = totalStars / existingEntity.getReviewCount();
                 break;
 
             case DELETE:

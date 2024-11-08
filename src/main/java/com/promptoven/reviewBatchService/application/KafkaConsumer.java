@@ -28,6 +28,18 @@ public class KafkaConsumer {
         return "OK";
     }
 
+    @KafkaListener(topics = UPDATE_TOPIC, groupId = "kafka-review-service")
+    public String consumeUpdate(RequestMessageDto message) {
+
+        System.out.println("delete data : " + message.toString());
+
+        ReviewBatchEntity reviewBatchEntity = message.toEntity(EventType.UPDATE);
+
+        reviewBatchRepository.save(reviewBatchEntity);
+
+        return "OK";
+    }
+
     @KafkaListener(topics = DELETE_TOPIC, groupId = "kafka-review-service")
     public String consumeDelete(RequestMessageDto message) {
 
