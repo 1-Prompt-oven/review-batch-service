@@ -79,8 +79,6 @@ public class BatchService {
 
         List<AggregateDto> aggregateDtoList = reviewBatchRepository.findAggregatedByType(eventType);
 
-        System.out.println("aggregateDtoList = " + aggregateDtoList);
-
         Map<String, AggregateEntity> existingEntityMap = loadExistingEntities(aggregateDtoList);
 
         List<AggregateEntity> toSaveData = aggregateDtoList.stream()
