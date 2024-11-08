@@ -2,6 +2,8 @@ package com.promptoven.reviewBatchService.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -26,10 +28,15 @@ public class ReviewBatchEntity {
     @Column(nullable = false)
     private int star;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private EventType type;
+
     @Builder
-    public ReviewBatchEntity(Long batchId, String productUuid, int star) {
+    public ReviewBatchEntity(Long batchId, String productUuid, int star, EventType type) {
         this.batchId = batchId;
         this.productUuid = productUuid;
         this.star = star;
+        this.type = type;
     }
 }
