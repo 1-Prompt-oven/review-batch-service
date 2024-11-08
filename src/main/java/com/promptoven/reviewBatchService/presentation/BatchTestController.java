@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/batch")
+@RequestMapping("/v1/review/batch")
 @RequiredArgsConstructor
-public class BatchController {
+public class BatchTestController {
 
     private final BatchSchedule batchSchedule;
 

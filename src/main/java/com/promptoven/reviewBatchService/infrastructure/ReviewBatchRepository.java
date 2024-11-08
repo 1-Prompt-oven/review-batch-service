@@ -23,5 +23,4 @@ public interface ReviewBatchRepository extends JpaRepository<ReviewBatchEntity, 
     List<AggregateDto> findAggregatedByType(@Param("type") EventType type);
 
 
-
 }

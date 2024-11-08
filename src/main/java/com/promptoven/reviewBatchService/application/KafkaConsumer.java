@@ -4,7 +4,6 @@ import com.promptoven.reviewBatchService.domain.EventType;
 import com.promptoven.reviewBatchService.domain.ReviewBatchEntity;
 import com.promptoven.reviewBatchService.dto.in.RequestMessageDto;
 import com.promptoven.reviewBatchService.infrastructure.ReviewBatchRepository;
-import jdk.jfr.Event;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;

@@ -18,7 +18,8 @@ public class AggregateDto {
     private double newTotalStar;
 
     @Builder
-    public AggregateDto(String productUuid, Long reviewCount, Double avgStar, double previousTotalStar, double newTotalStar) {
+    public AggregateDto(String productUuid, Long reviewCount, Double avgStar, double previousTotalStar,
+            double newTotalStar) {
         this.productUuid = productUuid;
         this.reviewCount = reviewCount;
         this.avgStar = avgStar;

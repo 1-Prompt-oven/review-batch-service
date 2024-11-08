@@ -23,7 +23,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 @RequiredArgsConstructor
-public class RefactorBatchService {
+public class BatchService {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
@@ -61,13 +61,19 @@ public class RefactorBatchService {
     }
 
     @Bean
-    public Tasklet createTasklet() { return (contribution, chunkContext) -> processTasklet(EventType.CREATE); }
+    public Tasklet createTasklet() {
+        return (contribution, chunkContext) -> processTasklet(EventType.CREATE);
+    }
 
     @Bean
-    public Tasklet updateTasklet() { return (contribution, chunkContext) -> processTasklet(EventType.UPDATE); }
+    public Tasklet updateTasklet() {
+        return (contribution, chunkContext) -> processTasklet(EventType.UPDATE);
+    }
 
     @Bean
-    public Tasklet deleteTasklet() { return (contribution, chunkContext) -> processTasklet(EventType.DELETE); }
+    public Tasklet deleteTasklet() {
+        return (contribution, chunkContext) -> processTasklet(EventType.DELETE);
+    }
 
     private RepeatStatus processTasklet(EventType eventType) {
 
@@ -88,15 +94,11 @@ public class RefactorBatchService {
                         } else {
                             return aggregateDto.toEntity(aggregateDto);
                         }
-                    }
-
-                    else if (eventType == EventType.UPDATE) {
+                    } else if (eventType == EventType.UPDATE) {
                         if (existingEntity != null) {
                             return updateEntity(existingEntity, aggregateDto, EventType.UPDATE);
                         }
-                    }
-
-                    else if (eventType == EventType.DELETE) {
+                    } else if (eventType == EventType.DELETE) {
                         if (existingEntity != null && existingEntity.getReviewCount() > aggregateDto.getReviewCount()) {
                             return updateEntity(existingEntity, aggregateDto, EventType.DELETE);
                         } else if (existingEntity != null) {
@@ -112,7 +114,9 @@ public class RefactorBatchService {
 
         aggregateRepository.saveAll(toSaveData);
 
-        if (eventType == EventType.DELETE) { reviewBatchRepository.deleteAll(); }
+        if (eventType == EventType.DELETE) {
+            reviewBatchRepository.deleteAll();
+        }
 
         return RepeatStatus.FINISHED;
     }
