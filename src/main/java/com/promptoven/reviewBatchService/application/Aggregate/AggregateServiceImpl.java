@@ -1,4 +1,4 @@
-package com.promptoven.reviewBatchService.application;
+package com.promptoven.reviewBatchService.application.Aggregate;
 
 import com.promptoven.reviewBatchService.domain.AggregateEntity;
 import com.promptoven.reviewBatchService.dto.out.AggregateResponseDto;

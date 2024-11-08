@@ -1,4 +1,4 @@
-package com.promptoven.reviewBatchService.application;
+package com.promptoven.reviewBatchService.application.Kafka;
 
 import com.promptoven.reviewBatchService.domain.EventType;
 import com.promptoven.reviewBatchService.domain.ReviewBatchEntity;

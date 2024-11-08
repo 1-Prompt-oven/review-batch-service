@@ -1,7 +1,7 @@
 package com.promptoven.reviewBatchService.presentation;
 
-import com.promptoven.reviewBatchService.application.AggregateService;
-import com.promptoven.reviewBatchService.application.BatchSchedule;
+import com.promptoven.reviewBatchService.application.Aggregate.AggregateService;
+import com.promptoven.reviewBatchService.application.Batch.BatchSchedule;
 import com.promptoven.reviewBatchService.dto.out.AggregateResponseDto;
 import com.promptoven.reviewBatchService.vo.out.AggregateResponseVo;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v1/review/aggregate")
 @RequiredArgsConstructor
-public class BatchController {
+public class AggregateController {
 
     private final AggregateService aggregateService;
     private final BatchSchedule batchSchedule;
