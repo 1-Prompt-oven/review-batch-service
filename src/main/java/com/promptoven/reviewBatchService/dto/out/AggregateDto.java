@@ -1,4 +1,4 @@
-package com.promptoven.reviewBatchService.dto;
+package com.promptoven.reviewBatchService.dto.out;
 
 import com.promptoven.reviewBatchService.domain.AggregateEntity;
 import lombok.Builder;
@@ -14,11 +14,17 @@ public class AggregateDto {
     private Long reviewCount;
     private Double avgStar;
 
+    private double previousTotalStar;
+    private double newTotalStar;
+
     @Builder
-    public AggregateDto(String productUuid, Long reviewCount, Double avgStar) {
+    public AggregateDto(String productUuid, Long reviewCount, Double avgStar, double previousTotalStar,
+            double newTotalStar) {
         this.productUuid = productUuid;
         this.reviewCount = reviewCount;
         this.avgStar = avgStar;
+        this.previousTotalStar = previousTotalStar;
+        this.newTotalStar = newTotalStar;
     }
 
     public AggregateEntity toEntity(AggregateDto aggregateDto) {
