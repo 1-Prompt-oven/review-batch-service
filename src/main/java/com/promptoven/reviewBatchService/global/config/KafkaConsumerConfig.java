@@ -1,4 +1,4 @@
-package com.promptoven.reviewBatchService.config;
+package com.promptoven.reviewBatchService.global.config;
 
 import com.promptoven.reviewBatchService.dto.in.RequestMessageDto;
 import java.util.HashMap;

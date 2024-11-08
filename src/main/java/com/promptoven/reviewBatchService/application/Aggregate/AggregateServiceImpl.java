@@ -2,7 +2,9 @@ package com.promptoven.reviewBatchService.application.Aggregate;
 
 import com.promptoven.reviewBatchService.domain.AggregateEntity;
 import com.promptoven.reviewBatchService.dto.out.AggregateResponseDto;
+import com.promptoven.reviewBatchService.global.error.BaseException;
 import com.promptoven.reviewBatchService.infrastructure.AggregateRepository;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +17,13 @@ public class AggregateServiceImpl implements AggregateService {
     @Override
     public AggregateResponseDto getAggregateData(String productUuid) {
 
-        AggregateEntity aggregateEntity = aggregateRepository.findByProductUuid(productUuid)
-                .orElseThrow(() -> new IllegalArgumentException("productUuid not found"));
+        Optional<AggregateEntity> aggregateEntity = aggregateRepository.findByProductUuid(productUuid);
 
-        return AggregateResponseDto.toDto(aggregateEntity);
+        return aggregateEntity
+                .map(AggregateResponseDto::toDto)
+                .orElseGet(() -> new AggregateResponseDto(
+                        productUuid, 0.0, 0L
+                ));
     }
 }
+
