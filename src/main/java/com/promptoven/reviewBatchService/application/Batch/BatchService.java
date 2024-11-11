@@ -1,8 +1,11 @@
-package com.promptoven.reviewBatchService.application;
+package com.promptoven.reviewBatchService.application.Batch;
+
+import static com.promptoven.reviewBatchService.global.common.response.BaseResponseStatus.NO_EXIST_EVENT;
 
 import com.promptoven.reviewBatchService.domain.AggregateEntity;
 import com.promptoven.reviewBatchService.domain.EventType;
 import com.promptoven.reviewBatchService.dto.out.AggregateDto;
+import com.promptoven.reviewBatchService.global.error.BaseException;
 import com.promptoven.reviewBatchService.infrastructure.AggregateRepository;
 import com.promptoven.reviewBatchService.infrastructure.ReviewBatchRepository;
 import java.util.List;
@@ -78,8 +81,6 @@ public class BatchService {
     private RepeatStatus processTasklet(EventType eventType) {
 
         List<AggregateDto> aggregateDtoList = reviewBatchRepository.findAggregatedByType(eventType);
-
-        System.out.println("aggregateDtoList = " + aggregateDtoList);
 
         Map<String, AggregateEntity> existingEntityMap = loadExistingEntities(aggregateDtoList);
 
@@ -161,7 +162,7 @@ public class BatchService {
                 break;
 
             default:
-                throw new IllegalArgumentException("존재하지 않는 이벤트 유형: " + eventType);
+                throw new BaseException(NO_EXIST_EVENT);
         }
 
         return AggregateEntity.builder()

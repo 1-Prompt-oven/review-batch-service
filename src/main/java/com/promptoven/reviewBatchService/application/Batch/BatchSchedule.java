@@ -1,4 +1,4 @@
-package com.promptoven.reviewBatchService.application;
+package com.promptoven.reviewBatchService.application.Batch;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.JobParameters;
