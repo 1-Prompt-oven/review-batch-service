@@ -12,8 +12,8 @@ public interface ReviewBatchRepository extends JpaRepository<ReviewBatchEntity, 
 
     @Query("SELECT new com.promptoven.reviewBatchService.dto.out.AggregateDto(" +
             "r.productUuid, " +
-            "CAST(COUNT(r) AS long), " +
-            "CAST(AVG(r.star) AS double), " +
+            "COUNT(r), " +
+            "AVG(r.star), " +
             "SUM(CASE WHEN r.type = 'UPDATE' THEN r.previousStar ELSE 0 END), " + // previousTotalStar
             "SUM(CASE WHEN r.type = 'UPDATE' THEN r.star ELSE 0 END) " +       // newTotalStar
             ") " +

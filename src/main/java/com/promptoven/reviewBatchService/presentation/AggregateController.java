@@ -18,7 +18,7 @@ public class AggregateController {
     private final AggregateService aggregateService;
     private final BatchSchedule batchSchedule;
 
-    @GetMapping
+    @GetMapping("/testSchedule")
     public String batch() throws Exception {
         batchSchedule.scheduleBatch();
         return "OK";
