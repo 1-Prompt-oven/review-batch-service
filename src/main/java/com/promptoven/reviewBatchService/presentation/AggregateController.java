@@ -3,6 +3,7 @@ package com.promptoven.reviewBatchService.presentation;
 import com.promptoven.reviewBatchService.application.Aggregate.AggregateService;
 import com.promptoven.reviewBatchService.application.Batch.BatchSchedule;
 import com.promptoven.reviewBatchService.dto.out.AggregateResponseDto;
+import com.promptoven.reviewBatchService.global.common.response.BaseResponse;
 import com.promptoven.reviewBatchService.vo.out.AggregateResponseVo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,10 +26,10 @@ public class AggregateController {
     }
 
     @GetMapping({"/{productUuid}"})
-    public AggregateResponseVo getAggregateData(@PathVariable String productUuid) {
+    public BaseResponse<AggregateResponseVo>  getAggregateData(@PathVariable String productUuid) {
 
         AggregateResponseDto aggregateResponseDto = aggregateService.getAggregateData(productUuid);
 
-        return AggregateResponseDto.toVo(aggregateResponseDto);
+        return new BaseResponse<>(AggregateResponseDto.toVo(aggregateResponseDto));
     }
 }
