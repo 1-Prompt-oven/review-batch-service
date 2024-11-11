@@ -2,7 +2,6 @@ package com.promptoven.reviewBatchService.application.Aggregate;
 
 import com.promptoven.reviewBatchService.domain.AggregateEntity;
 import com.promptoven.reviewBatchService.dto.out.AggregateResponseDto;
-import com.promptoven.reviewBatchService.global.error.BaseException;
 import com.promptoven.reviewBatchService.infrastructure.AggregateRepository;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

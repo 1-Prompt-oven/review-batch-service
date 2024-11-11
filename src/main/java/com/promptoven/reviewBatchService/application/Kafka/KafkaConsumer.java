@@ -18,36 +18,29 @@ public class KafkaConsumer {
     private final ReviewBatchRepository reviewBatchRepository;
 
     @KafkaListener(topics = CREATE_TOPIC, groupId = "kafka-review-service")
-    public String consumeCreate(RequestMessageDto message) {
+    public void consumeCreate(RequestMessageDto message) {
 
         ReviewBatchEntity reviewBatchEntity = message.toEntity(EventType.CREATE);
 
         reviewBatchRepository.save(reviewBatchEntity);
 
-        return "OK";
     }
 
     @KafkaListener(topics = UPDATE_TOPIC, groupId = "kafka-review-service")
-    public String consumeUpdate(RequestMessageDto message) {
-
-        System.out.println("delete data : " + message.toString());
+    public void consumeUpdate(RequestMessageDto message) {
 
         ReviewBatchEntity reviewBatchEntity = message.toEntity(EventType.UPDATE);
 
         reviewBatchRepository.save(reviewBatchEntity);
 
-        return "OK";
     }
 
     @KafkaListener(topics = DELETE_TOPIC, groupId = "kafka-review-service")
-    public String consumeDelete(RequestMessageDto message) {
-
-        System.out.println("delete data : " + message.toString());
+    public void consumeDelete(RequestMessageDto message) {
 
         ReviewBatchEntity reviewBatchEntity = message.toEntity(EventType.DELETE);
 
         reviewBatchRepository.save(reviewBatchEntity);
 
-        return "OK";
     }
 }
