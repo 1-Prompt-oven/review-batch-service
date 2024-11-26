@@ -19,14 +19,14 @@ public class AggregateController {
     private final AggregateService aggregateService;
     private final BatchSchedule batchSchedule;
 
-    @GetMapping("/testSchedule")
+    @GetMapping("/scheduleTest")
     public String batch() throws Exception {
         batchSchedule.scheduleBatch();
         return "OK";
     }
 
     @GetMapping({"/{productUuid}"})
-    public BaseResponse<AggregateResponseVo>  getAggregateData(@PathVariable String productUuid) {
+    public BaseResponse<AggregateResponseVo> getAggregateData(@PathVariable String productUuid) {
 
         AggregateResponseDto aggregateResponseDto = aggregateService.getAggregateData(productUuid);
 

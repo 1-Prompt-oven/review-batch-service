@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class AggregateResponseVo {
+
     private String productUuid;
     private double avgStar;
     private long reviewCount;

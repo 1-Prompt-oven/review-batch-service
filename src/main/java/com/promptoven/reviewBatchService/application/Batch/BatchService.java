@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -24,6 +25,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class BatchService {
@@ -100,6 +102,7 @@ public class BatchService {
                             return updateEntity(existingEntity, aggregateDto, EventType.UPDATE);
                         }
                     } else if (eventType == EventType.DELETE) {
+
                         if (existingEntity != null && existingEntity.getReviewCount() > aggregateDto.getReviewCount()) {
                             return updateEntity(existingEntity, aggregateDto, EventType.DELETE);
                         } else if (existingEntity != null) {
@@ -113,6 +116,7 @@ public class BatchService {
                 .filter(Objects::nonNull)
                 .toList();
 
+        // message -> productUuid, avgStar
         aggregateRepository.saveAll(toSaveData);
 
         if (eventType == EventType.DELETE) {
@@ -145,10 +149,14 @@ public class BatchService {
                 break;
 
             case UPDATE:
+
+                log.info("existingEntity : {}", existingEntity.toString());
+                log.info("aggregateDto : {}", aggregateDto.toString());
+
                 updatedReviewCount = existingEntity.getReviewCount();
-                double totalStars = existingEntity.getAvgStar() * existingEntity.getReviewCount();
+                double totalStars = existingEntity.getAvgStar() * updatedReviewCount;
                 totalStars = totalStars - aggregateDto.getPreviousTotalStar() + aggregateDto.getNewTotalStar();
-                updatedAvgStar = totalStars / existingEntity.getReviewCount();
+                updatedAvgStar = totalStars / updatedReviewCount;
                 break;
 
             case DELETE:
