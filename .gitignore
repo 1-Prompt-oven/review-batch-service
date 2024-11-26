@@ -41,6 +41,3 @@ out/
 .DS_Store
 .AppleDouble
 .LSOverride
-
-### config ###
-*.yml
