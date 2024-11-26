@@ -15,7 +15,7 @@ public class BatchSchedule {
     private final JobLauncher jobLauncher;
     private final JobRegistry jobRegistry;
 
-    @Scheduled(cron = "0 0 0 * * *") // 매일 0시 0분 0초에 실행
+    @Scheduled(cron = "0 0 15 * * *") // UTC 기준 15시에 실행 (KST 0시)
     public void scheduleBatch() throws Exception {
 
         JobParameters jobParameters = new JobParametersBuilder()

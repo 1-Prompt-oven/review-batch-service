@@ -12,23 +12,20 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class KafkaConsumer {
 
-    private static final String CREATE_TOPIC = "create_review_event"; // 각각 이벤트의 발행
-    private static final String UPDATE_TOPIC = "update_review_event";
-    private static final String DELETE_TOPIC = "delete_review_event";
-    private static final String GROUP_ID = "kafka-review-service";
+    private static final String GROUP_ID = "kafka-review-batch-service";
     private final ReviewBatchRepository reviewBatchRepository;
 
-    @KafkaListener(topics = CREATE_TOPIC, groupId = GROUP_ID)
+    @KafkaListener(topics = "${review-create-event}", groupId = GROUP_ID)
     public void consumeCreate(RequestMessageDto message) {
         consumeEvent(message, EventType.CREATE);
     }
 
-    @KafkaListener(topics = UPDATE_TOPIC, groupId = GROUP_ID)
+    @KafkaListener(topics = "${review-update-event}", groupId = GROUP_ID)
     public void consumeUpdate(RequestMessageDto message) {
         consumeEvent(message, EventType.UPDATE);
     }
 
-    @KafkaListener(topics = DELETE_TOPIC, groupId = GROUP_ID)
+    @KafkaListener(topics = "${review-delete-event}", groupId = GROUP_ID)
     public void consumeDelete(RequestMessageDto message) {
         consumeEvent(message, EventType.DELETE);
     }
