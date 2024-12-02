@@ -4,10 +4,13 @@ import static com.promptoven.reviewBatchService.global.common.response.BaseRespo
 
 import com.promptoven.reviewBatchService.domain.AggregateEntity;
 import com.promptoven.reviewBatchService.domain.EventType;
+import com.promptoven.reviewBatchService.domain.SellerAggregateEntity;
 import com.promptoven.reviewBatchService.dto.out.AggregateDto;
+import com.promptoven.reviewBatchService.dto.out.SellerAggregateDto;
 import com.promptoven.reviewBatchService.global.error.BaseException;
 import com.promptoven.reviewBatchService.infrastructure.AggregateRepository;
 import com.promptoven.reviewBatchService.infrastructure.ReviewBatchRepository;
+import com.promptoven.reviewBatchService.infrastructure.SellerAggregateRepository;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -32,6 +35,7 @@ public class BatchService {
 
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
+    private final SellerAggregateRepository sellerAggregateRepository;
     private final AggregateRepository aggregateRepository;
     private final ReviewBatchRepository reviewBatchRepository;
 
@@ -41,6 +45,7 @@ public class BatchService {
                 .start(createStep())
                 .next(updateStep())
                 .next(deleteStep())
+                .next(sellerAggregateStep())
                 .build();
     }
 
@@ -63,6 +68,34 @@ public class BatchService {
         return new StepBuilder("deleteStep", jobRepository)
                 .tasklet(deleteTasklet(), transactionManager)
                 .build();
+    }
+
+    @Bean
+    public Step sellerAggregateStep() {
+        return new StepBuilder("sellerAggregateStep", jobRepository)
+                .tasklet(sellerAggregateTasklet(), transactionManager)
+                .build();
+    }
+
+    @Bean
+    public Tasklet sellerAggregateTasklet() {
+        return (contribution, chunkContext) -> {
+            processSellerAggregate();
+            return RepeatStatus.FINISHED;
+        };
+    }
+
+    private void processSellerAggregate() {
+        List<SellerAggregateDto> sellerAggregateDtoList = sellerAggregateRepository.findSellerAggregate();
+        sellerAggregateRepository.saveAll(
+                sellerAggregateDtoList.stream()
+                        .map(dto -> SellerAggregateEntity.builder()
+                                .sellerUuid(dto.getSellerUuid())
+                                .avgStar(dto.getAvgStar())
+                                .build()
+                        )
+                        .toList()
+        );
     }
 
     @Bean
@@ -176,6 +209,7 @@ public class BatchService {
         return AggregateEntity.builder()
                 .id(existingEntity.getId())
                 .productUuid(existingEntity.getProductUuid())
+                .sellerUuid(existingEntity.getSellerUuid())
                 .reviewCount(updatedReviewCount)
                 .avgStar(updatedAvgStar)
                 .build();

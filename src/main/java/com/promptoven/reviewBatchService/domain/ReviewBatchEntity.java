@@ -26,6 +26,9 @@ public class ReviewBatchEntity {
     private String productUuid;
 
     @Column(nullable = false)
+    private String sellerUuid;
+
+    @Column(nullable = false)
     private int star;
 
     @Column(nullable = true)
@@ -36,9 +39,10 @@ public class ReviewBatchEntity {
     private EventType type;
 
     @Builder
-    public ReviewBatchEntity(Long batchId, String productUuid, int star, int previousStar, EventType type) {
+    public ReviewBatchEntity(Long batchId, String productUuid, String sellerUuid, int star, int previousStar, EventType type) {
         this.batchId = batchId;
         this.productUuid = productUuid;
+        this.sellerUuid = sellerUuid;
         this.star = star;
         this.previousStar = previousStar;
         this.type = type;

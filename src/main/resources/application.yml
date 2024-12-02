@@ -33,7 +33,7 @@ server:
 # local 설정
 ---
 server:
-  port: 0
+  port: 8484
 
 spring:
   config:
@@ -61,7 +61,7 @@ spring:
       dialect: org.hibernate.dialect.MySQL8Dialect
 
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092,localhost:39092,localhost:49092}
+    text-bootstrap-servers: localhost:29092,localhost:39092,localhost:49092
 
 eureka:
   instance:

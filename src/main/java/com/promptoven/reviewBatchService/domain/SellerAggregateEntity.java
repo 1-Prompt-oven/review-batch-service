@@ -8,43 +8,27 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@Table(name = "seller_aggregate")
 @Entity
-@Table(name = "review_aggregate")
 @Getter
-public class AggregateEntity {
-
+@NoArgsConstructor
+public class SellerAggregateEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String productUuid;
-
-    @Column(nullable = false)
     private String sellerUuid;
-
-    @Column(nullable = false)
-    private Long reviewCount;
 
     @Column(nullable = false)
     private Double avgStar;
 
     @Builder
-    public AggregateEntity(Long id, String productUuid, String sellerUuid, Long reviewCount, Double avgStar) {
+    public SellerAggregateEntity(Long id, String sellerUuid, Double avgStar) {
         this.id = id;
-        this.productUuid = productUuid;
         this.sellerUuid = sellerUuid;
-        this.reviewCount = reviewCount;
         this.avgStar = avgStar;
-    }
-
-    public AggregateEntity(String productUuid, Long reviewCount, Double avgStar) {
-        this.productUuid = productUuid;
-        this.reviewCount = reviewCount;
-        this.avgStar = avgStar;
-    }
-
-    public AggregateEntity() {
     }
 }
