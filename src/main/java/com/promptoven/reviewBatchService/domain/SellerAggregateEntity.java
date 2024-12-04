@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class SellerAggregateEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

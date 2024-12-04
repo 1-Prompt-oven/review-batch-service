@@ -13,5 +13,11 @@ public interface AggregateRepository extends JpaRepository<AggregateEntity, Long
 
     Optional<AggregateEntity> findByProductUuid(String productUuid);
 
-
+    @Query("SELECT new com.promptoven.reviewBatchService.dto.out.SellerAggregateDto(" +
+            "r.sellerUuid, " +
+            "AVG(r.avgStar)" +
+            ") " +
+            "FROM AggregateEntity r " +
+            "GROUP BY r.sellerUuid")
+    List<SellerAggregateDto> findSellerAggregate();
 }
