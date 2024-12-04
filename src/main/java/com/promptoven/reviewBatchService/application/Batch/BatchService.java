@@ -6,14 +6,18 @@ import com.promptoven.reviewBatchService.domain.AggregateEntity;
 import com.promptoven.reviewBatchService.domain.EventType;
 import com.promptoven.reviewBatchService.domain.SellerAggregateEntity;
 import com.promptoven.reviewBatchService.dto.out.AggregateDto;
+import com.promptoven.reviewBatchService.dto.out.KafkaMessageDto;
 import com.promptoven.reviewBatchService.dto.out.SellerAggregateDto;
 import com.promptoven.reviewBatchService.global.error.BaseException;
 import com.promptoven.reviewBatchService.infrastructure.AggregateRepository;
 import com.promptoven.reviewBatchService.infrastructure.ReviewBatchRepository;
 import com.promptoven.reviewBatchService.infrastructure.SellerAggregateRepository;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +30,7 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Slf4j
@@ -33,6 +38,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 @RequiredArgsConstructor
 public class BatchService {
 
+    private final KafkaTemplate<String, Object> kafkaTemplate;
     private final JobRepository jobRepository;
     private final PlatformTransactionManager transactionManager;
     private final SellerAggregateRepository sellerAggregateRepository;
@@ -46,6 +52,7 @@ public class BatchService {
                 .next(updateStep())
                 .next(deleteStep())
                 .next(sellerAggregateStep())
+                .next(sendToKafkaStep())
                 .build();
     }
 
@@ -78,6 +85,13 @@ public class BatchService {
     }
 
     @Bean
+    public Step sendToKafkaStep() {
+        return new StepBuilder("sendToKafkaStep", jobRepository)
+                .tasklet(sendToKafkaTasklet(), transactionManager)
+                .build();
+    }
+
+    @Bean
     public Tasklet sellerAggregateTasklet() {
         return (contribution, chunkContext) -> {
             processSellerAggregate();
@@ -86,16 +100,29 @@ public class BatchService {
     }
 
     private void processSellerAggregate() {
-        List<SellerAggregateDto> sellerAggregateDtoList = sellerAggregateRepository.findSellerAggregate();
-        sellerAggregateRepository.saveAll(
-                sellerAggregateDtoList.stream()
-                        .map(dto -> SellerAggregateEntity.builder()
-                                .sellerUuid(dto.getSellerUuid())
-                                .avgStar(dto.getAvgStar())
-                                .build()
-                        )
-                        .toList()
-        );
+        List<SellerAggregateDto> sellerAggregateDtoList = aggregateRepository.findSellerAggregate();
+
+        for (SellerAggregateDto dto : sellerAggregateDtoList) {
+            Optional<SellerAggregateEntity> existingEntity = sellerAggregateRepository.findBySellerUuid(
+                    dto.getSellerUuid());
+
+            if (existingEntity.isPresent()) {
+                SellerAggregateEntity updatedEntity = SellerAggregateEntity.builder()
+                        .id(existingEntity.get().getId())
+                        .sellerUuid(existingEntity.get().getSellerUuid())
+                        .avgStar(dto.getAvgStar())
+                        .build();
+                sellerAggregateRepository.save(updatedEntity);
+                saveSellerData(existingEntity.get().getSellerUuid(), dto.getAvgStar());
+            } else {
+                SellerAggregateEntity newEntity = SellerAggregateEntity.builder()
+                        .sellerUuid(dto.getSellerUuid())
+                        .avgStar(dto.getAvgStar())
+                        .build();
+                sellerAggregateRepository.save(newEntity);
+                saveSellerData(newEntity.getSellerUuid(), newEntity.getAvgStar());
+            }
+        }
     }
 
     @Bean
@@ -113,6 +140,14 @@ public class BatchService {
         return (contribution, chunkContext) -> processTasklet(EventType.DELETE);
     }
 
+    @Bean
+    Tasklet sendToKafkaTasklet() {
+        return (contribution, chunkContext) -> {
+            sendAllDataToKafka();
+            return RepeatStatus.FINISHED;
+        };
+    }
+
     private RepeatStatus processTasklet(EventType eventType) {
 
         List<AggregateDto> aggregateDtoList = reviewBatchRepository.findAggregatedByType(eventType);
@@ -124,27 +159,32 @@ public class BatchService {
 
                     AggregateEntity existingEntity = existingEntityMap.get(aggregateDto.getProductUuid());
 
+                    AggregateEntity updatedEntity = null;
                     if (eventType == EventType.CREATE) {
                         if (existingEntity != null) {
-                            return updateEntity(existingEntity, aggregateDto, EventType.CREATE);
+                            updatedEntity = updateEntity(existingEntity, aggregateDto, EventType.CREATE);
                         } else {
-                            return aggregateDto.toEntity(aggregateDto);
+                            updatedEntity = aggregateDto.toEntity(aggregateDto);
                         }
                     } else if (eventType == EventType.UPDATE) {
                         if (existingEntity != null) {
-                            return updateEntity(existingEntity, aggregateDto, EventType.UPDATE);
+                            updatedEntity = updateEntity(existingEntity, aggregateDto, EventType.UPDATE);
                         }
                     } else if (eventType == EventType.DELETE) {
 
                         if (existingEntity != null && existingEntity.getReviewCount() > aggregateDto.getReviewCount()) {
-                            return updateEntity(existingEntity, aggregateDto, EventType.DELETE);
+                            updatedEntity = updateEntity(existingEntity, aggregateDto, EventType.DELETE);
                         } else if (existingEntity != null) {
                             aggregateRepository.delete(existingEntity);
                             return null;
                         }
                     }
 
-                    return null;
+                    if (updatedEntity != null) {
+                        saveProductData(updatedEntity.getProductUuid(), updatedEntity.getAvgStar());
+                    }
+
+                    return updatedEntity;
                 })
                 .filter(Objects::nonNull)
                 .toList();
@@ -183,9 +223,6 @@ public class BatchService {
 
             case UPDATE:
 
-                log.info("existingEntity : {}", existingEntity.toString());
-                log.info("aggregateDto : {}", aggregateDto.toString());
-
                 updatedReviewCount = existingEntity.getReviewCount();
                 double totalStars = existingEntity.getAvgStar() * updatedReviewCount;
                 totalStars = totalStars - aggregateDto.getPreviousTotalStar() + aggregateDto.getNewTotalStar();
@@ -214,4 +251,49 @@ public class BatchService {
                 .avgStar(updatedAvgStar)
                 .build();
     }
+
+    private void sendAllDataToKafka() {
+        Map<String, Double> allModifiedProductData = getAllProductData();
+        Map<String, Double> allModifiedSellerData = getAllSellerData();
+        
+        try {
+            KafkaMessageDto kafkaMessageDto = KafkaMessageDto.builder()
+                    .productAggregateMap(allModifiedProductData)
+                    .sellerAggregateMap(allModifiedSellerData)
+                    .build();
+
+            kafkaTemplate.send("aggregate-finish-event", kafkaMessageDto);
+            log.info("Sent KafkaMessageDto to Kafka: {}", kafkaMessageDto);
+
+        } catch (Exception e) {
+            log.error("Error sending aggregate data to Kafka: {}", e.getMessage());
+        } finally {
+            clearAllData();
+        }
+    }
+
+    private final Map<String, Double> productAvgStarMap = new ConcurrentHashMap<>();
+    private final Map<String, Double> sellerAvgStarMap = new ConcurrentHashMap<>();
+
+    private void saveProductData(String productUuid, double productAvgStar) {
+        productAvgStarMap.put(productUuid, productAvgStar);
+    }
+
+    private void saveSellerData(String sellerUuid, double sellerAvgStar) {
+        sellerAvgStarMap.put(sellerUuid, sellerAvgStar);
+    }
+
+    private Map<String, Double> getAllProductData() {
+        return new HashMap<>(productAvgStarMap);
+    }
+
+    private Map<String, Double> getAllSellerData() {
+        return new HashMap<>(sellerAvgStarMap);
+    }
+
+    private void clearAllData() {
+        productAvgStarMap.clear();
+        sellerAvgStarMap.clear();
+    }
+
 }
