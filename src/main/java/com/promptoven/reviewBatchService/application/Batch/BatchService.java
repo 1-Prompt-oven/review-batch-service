@@ -262,7 +262,7 @@ public class BatchService {
                     .sellerAggregateMap(allModifiedSellerData)
                     .build();
 
-            kafkaTemplate.send("aggregate-finish-event", kafkaMessageDto);
+            kafkaTemplate.send("${aggregate-finish-event}", kafkaMessageDto);
             log.info("Sent KafkaMessageDto to Kafka: {}", kafkaMessageDto);
 
         } catch (Exception e) {
