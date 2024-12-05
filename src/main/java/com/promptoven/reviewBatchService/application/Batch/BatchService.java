@@ -28,6 +28,7 @@ import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -37,6 +38,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 @RequiredArgsConstructor
 public class BatchService {
+
+    @Value("${aggregate-finish-event}")
+    private String aggregateFinishEventTopic;
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final JobRepository jobRepository;
@@ -253,6 +257,7 @@ public class BatchService {
     }
 
     private void sendAllDataToKafka() {
+
         Map<String, Double> allModifiedProductData = getAllProductData();
         Map<String, Double> allModifiedSellerData = getAllSellerData();
         
@@ -262,7 +267,7 @@ public class BatchService {
                     .sellerAggregateMap(allModifiedSellerData)
                     .build();
 
-            kafkaTemplate.send("${aggregate-finish-event}", kafkaMessageDto);
+            kafkaTemplate.send(aggregateFinishEventTopic, kafkaMessageDto);
             log.info("Sent KafkaMessageDto to Kafka: {}", kafkaMessageDto);
 
         } catch (Exception e) {
